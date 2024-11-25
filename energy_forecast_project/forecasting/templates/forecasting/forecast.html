@@ -7,9 +7,25 @@
     <h1>Energy Forecast</h1>
     <form method="POST">
         {% csrf_token %}
-        <label for="date">Date (YYYY-MM-DD):</label>
-        <input type="text" id="date" name="date" required>
-        <button type="submit">Get Predictions</button>
+        
+        <!-- Date Input -->
+        {% if show_generate_button %}
+            <label for="date">Date (YYYY-MM-DD):</label>
+            <input type="text" id="date" name="date" value="{{ date }}" required>
+        {% else %}
+            <!-- Persist the date in a hidden field after the first submission -->
+            <input type="hidden" id="date" name="date" value="{{ date }}">
+        {% endif %}
+        
+        <!-- Generate Augmented Data Button -->
+        {% if show_generate_button %}
+            <button type="submit" name="action" value="generate_data">Generate Augmented Data</button>
+        {% endif %}
+        
+        <!-- See Graph Button -->
+        {% if show_graph_button %}
+            <button type="submit" name="action" value="see_graph">See Graph</button>
+        {% endif %}
     </form>
 
     {% if short_term_prediction or long_term_prediction %}
