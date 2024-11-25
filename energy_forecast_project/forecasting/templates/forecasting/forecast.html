@@ -2,10 +2,23 @@
 <html>
 <head>
     <title>Energy Forecast</title>
+    <style>
+        #loading {
+            display: none; /* Initially hidden */
+            font-size: 18px;
+            color: blue;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+    </script>
 </head>
 <body>
     <h1>Energy Forecast</h1>
-    <form method="POST">
+    <form method="POST" onsubmit="showLoading()">
         {% csrf_token %}
         
         <!-- Date Input -->
@@ -27,6 +40,9 @@
             <button type="submit" name="action" value="see_graph">See Graph</button>
         {% endif %}
     </form>
+
+    <!-- Loading Message -->
+    <div id="loading">Running scripts... Please wait.</div>
 
     {% if short_term_prediction or long_term_prediction %}
         <h2>Predictions:</h2>
