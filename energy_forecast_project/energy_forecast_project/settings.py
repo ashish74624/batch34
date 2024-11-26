@@ -24,6 +24,7 @@ RAW_WEATHER_DIR = os.path.join(DATA_DIR, 'raw', 'weather')
 PROCESSED_DATA = os.path.join(DATA_DIR, 'processed', 'weather_and_consumption.csv')
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -45,8 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'forecasting',
-    'data_preprocessing'
+    'forecasting'
 ]
 
 MIDDLEWARE = [
@@ -130,4 +130,16 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
+CORS_ALLOW_CREDENTIALS = True
+    
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+INSTALLED_APPS += ["corsheaders"]
+MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",  # React Vite development server
+]
