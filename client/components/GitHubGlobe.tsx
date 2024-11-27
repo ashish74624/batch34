@@ -396,7 +396,7 @@ export default function GitHubGlobe() {
     ];
 
     return (
-        <div className="flex flex-row items-center justify-center h-screen md:h-auto dark:bg-black bg-white  w-full -z-50 absolute">
+        <div className="flex flex-row items-center justify-center h-screen md:h-auto dark:bg-black bg-white  w-full -z-50 sticky top-0">
             <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-full md:h-[40rem] px-4">
                 <div className="absolute w-full bottom-0 inset-x-0 h-40 bg-gradient-to-b pointer-events-none select-none from-transparent dark:to-black to-white z-40" />
                 <div className="absolute w-full -bottom-20 h-90 md:h-full z-10">

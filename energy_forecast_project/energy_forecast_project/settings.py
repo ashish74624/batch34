@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'forecasting'
+    'forecasting',
+    'data_preprocessing'
 ]
 
 MIDDLEWARE = [
@@ -137,9 +138,9 @@ INSTALLED_APPS += ["corsheaders"]
 MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  
+    "http://localhost:3000",  
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",  # React Vite development server
+    "http://localhost:3000",  # React Vite development server
 ]

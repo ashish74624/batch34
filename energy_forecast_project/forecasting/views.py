@@ -27,11 +27,15 @@ def forecast_view(request):
         except subprocess.CalledProcessError as e:
             return JsonResponse({"error": f"Error executing script: {e}"}, status=500)
 
-        # Example: Generate predictions
-        short_term_model = ShortTermEnergyModel(pd.DataFrame())
-        long_term_model = LongTermEnergyModel(pd.DataFrame())
+        data_path = os.path.join(settings.BASE_DIR, r"C:\Users\ashis\OneDrive\Desktop\Monthly-Daily-Energy-Forecasting-Docker-API\data\processed\weather_and_consumption.csv")
+        df = pd.read_csv(data_path, index_col=0, parse_dates=True)
 
+          # Short-term prediction
+        short_term_model = ShortTermEnergyModel(df)
         short_term_prediction = short_term_model.predict_for_date(date)
+
+        # Long-term prediction
+        long_term_model = LongTermEnergyModel(df)
         long_term_prediction = long_term_model.predict_for_date(date)
 
         return JsonResponse({

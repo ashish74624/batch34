@@ -42,18 +42,19 @@ function Project() {
     };
 
     return (
-        <div className="w-screen h-screen bg-none">
+        <div className="w-screen h-screen bg-none z-40 relative text-white">
             <h1>Energy Forecast</h1>
             <input
                 type="date"
+                className="text-black"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
             />
-            <button className="text-white" onClick={() => handleAction("generate_data")}>
+            <button className="text-white px-2 py-1.5 border" onClick={() => handleAction("generate_data")}>
                 Generate Augmented Data
             </button>
-            <button className="text-white" onClick={() => handleAction("see_graph")}>See Graph</button>
+            <button className="text-white px-2 py-1.5 border" onClick={() => handleAction("see_graph")}>See Graph</button>
 
             {loading && <p>Running scripts... Please wait.</p>}
             {shortTermPrediction && (
