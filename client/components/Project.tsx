@@ -42,7 +42,7 @@ function Project() {
     };
 
     return (
-        <div className="w-screen h-screen bg-none z-40 relative text-white">
+        <div className="w-screen h-screen bg-red-500 z-50 relative text-white">
             <h1>Energy Forecast</h1>
             <input
                 type="date"
