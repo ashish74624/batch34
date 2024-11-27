@@ -42,27 +42,35 @@ function Project() {
     };
 
     return (
-        <div className="w-screen h-screen bg-red-500 z-50 relative text-white">
-            <h1>Energy Forecast</h1>
-            <input
-                type="date"
-                className="text-black"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-            />
-            <button className="text-white px-2 py-1.5 border" onClick={() => handleAction("generate_data")}>
-                Generate Augmented Data
-            </button>
-            <button className="text-white px-2 py-1.5 border" onClick={() => handleAction("see_graph")}>See Graph</button>
+        <div id="project" className="w-screen h-screen p-4 z-50 relative mt-40 text-white">
+            <h1 className="text-4xl">Energy Forecast</h1>
+            <div className="flex flex-col w-full h-[50vh] gap-2 justify-center items-center">
 
-            {loading && <p>Running scripts... Please wait.</p>}
-            {shortTermPrediction && (
-                <p>Short-Term Prediction: {shortTermPrediction}</p>
-            )}
-            {longTermPrediction && (
-                <p>Long-Term Prediction: {longTermPrediction}</p>
-            )}
+                <input
+                    type="date"
+                    className="text-black w-60 px-2 py-1.5 rounded-md"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    required
+                />
+                <button className="text-white px-2  w-80 py-1.5 border rounded-md" onClick={() => handleAction("generate_data")}>
+                    Generate Augmented Data
+                </button>
+
+
+                {loading && <p>Running scripts... Please wait.</p>}
+                {shortTermPrediction && (
+                    <p>Short-Term Prediction: {shortTermPrediction}</p>
+                )}
+                {longTermPrediction && (
+                    <p>Long-Term Prediction: {longTermPrediction}</p>
+                )}
+
+                {shortTermPrediction && longTermPrediction && (
+                    <button className="text-white px-2 w-80 py-1.5 border rounded-md" onClick={() => handleAction("see_graph")}>See Graph</button>
+                )}
+
+            </div>
         </div>
     );
 }

@@ -11,7 +11,7 @@ export default function Home() {
           <h1 className='text-white text-5xl'>
             AI system for real-time Energy pricing
           </h1>
-          <button className='bg-white rounded-md text-black px-2 py-1.5 mt-2'>Get Started</button>
+          <a href='#project' className='bg-white rounded-md text-black px-2 py-1.5 mt-2'>Get Started</a>
         </div>
       </div>
       <Project />
