@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+  
   @layer base {
+   
     :root {
       --background: 0 0% 100%;
       --foreground: 222.2 84% 4.9%;
@@ -67,6 +69,11 @@
   }
 
   @layer components{
+
+      html{
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
   
   .input-class {
     @apply block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-[#0FADFF] focus:outline-none focus:ring-0 focus:border-[#0FADFF] 
@@ -79,10 +86,8 @@
 }
 
   @layer base {
-    /* * {
-      @apply border-border;
-    } */
-    /* body {
-      @apply bg-background text-foreground;
-    } */
+     html{
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
   }
