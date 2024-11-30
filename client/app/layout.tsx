@@ -10,8 +10,8 @@ const comfortaa = Comfortaa({
 
 
 export const metadata: Metadata = {
-  title: "Pixel Pry",
-  description: "An Image Management app by TechNexus - NMIT HACKS 2024",
+  title: "Energy Price",
+  description: "Final year project of Batch 34",
 };
 
 export default function RootLayout({
