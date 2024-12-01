@@ -71,6 +71,7 @@ def forecast_view(request):
         long_term_prediction = long_term_model.predict_for_date(mapped_date)
 
         return JsonResponse({
+            "mapped_date": mapped_date,
             "short_term_predictions": short_term_predictions,
             "long_term_prediction": long_term_prediction,
         })

@@ -1,32 +1,36 @@
 "use client";
+"use client";
 
 import { useState, useEffect } from "react";
-import { getCsrfToken } from "./getCsrfToken";
 import { Line } from "react-chartjs-2";
 import {
     Chart as ChartJS,
-    LineElement,
-    PointElement,
-    LinearScale,
     CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
     Tooltip,
     Legend,
 } from "chart.js";
+import { getCsrfToken } from "./getCsrfToken";
 
 // Register Chart.js components
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-interface ShortTermPrediction {
+interface Prediction {
     date: string;
     price: number;
 }
 
 function Project() {
-    const [date, setDate] = useState<string>("");
-    const [shortTermPredictions, setShortTermPredictions] = useState<ShortTermPrediction[]>([]);
-    const [longTermPrediction, setLongTermPrediction] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false);
-    const [csrfToken, setCsrfToken] = useState<string>("");
+    const [date, setDate] = useState<string>(""); // Input date
+    const [shortTermPredictions, setShortTermPredictions] = useState<Prediction[]>([]); // Original predictions
+    const [longTermPrediction, setLongTermPrediction] = useState<string>(""); // Long-term prediction
+    const [loading, setLoading] = useState<boolean>(false); // Loading state
+    const [csrfToken, setCsrfToken] = useState<string>(""); // CSRF token
+    const [updatedPredictions, setUpdatedPredictions] = useState<Prediction[]>([]);
+    const [mappedDate, setMappedDate] = useState<string | null>()
 
     useEffect(() => {
         const fetchToken = async () => {
@@ -36,7 +40,7 @@ function Project() {
         fetchToken();
     }, []);
 
-    const handleAction = async (action: "generate_data" | "see_graph") => {
+    const handleAction = async (action: "generate_data") => {
         setLoading(true);
         try {
             const response = await fetch("http://127.0.0.1:8000/api/forecast/", {
@@ -50,8 +54,11 @@ function Project() {
             });
             const data = await response.json();
             if (action === "generate_data") {
-                setShortTermPredictions(data.short_term_predictions || []);
+                const predictions: Prediction[] = data.short_term_predictions || [];
+                setShortTermPredictions(predictions);
                 setLongTermPrediction(data.long_term_prediction || "");
+                setUpdatedPredictions(predictions); // Initialize updated predictions
+                setMappedDate(data.mapped_date);
             }
         } catch (error) {
             console.error("Error:", error);
@@ -59,12 +66,25 @@ function Project() {
             setLoading(false);
         }
     };
+
+    const updateHoliday = (index: number) => {
+        const updated = [...updatedPredictions];
+        updated[index].price *= 1.2; // Increase price for holiday
+        setUpdatedPredictions(updated);
+    };
+
+    const updateWeather = (index: number, decreaseBy: number) => {
+        const updated = [...updatedPredictions];
+        updated[index].price *= 1 - decreaseBy / 100; // Decrease price by percentage
+        setUpdatedPredictions(updated);
+    };
+
     const chartData = {
-        labels: shortTermPredictions.map(prediction => prediction.date), // Dates returned from the backend
+        labels: updatedPredictions.map((prediction) => prediction.date),
         datasets: [
             {
                 label: "Short-Term Predictions",
-                data: shortTermPredictions.map(prediction => prediction.price),
+                data: updatedPredictions.map((prediction) => prediction.price),
                 borderColor: "rgba(75,192,192,1)",
                 backgroundColor: "rgba(75,192,192,0.2)",
                 fill: true,
@@ -73,12 +93,10 @@ function Project() {
         ],
     };
 
-
-
     return (
         <div id="project" className="w-screen h-screen p-4 z-50 relative mt-40 text-white">
             <h1 className="text-4xl">Energy Forecast</h1>
-            <div className="flex flex-col w-full h-[50vh] gap-2 justify-center items-center">
+            <div className="flex flex-col w-full min-h-[50vh] h-max gap-2 justify-center items-center">
                 <input
                     type="date"
                     className="text-black w-60 px-2 py-1.5 rounded-md"
@@ -94,13 +112,40 @@ function Project() {
                 </button>
 
                 {loading && <p>Running scripts... Please wait.</p>}
+
                 {shortTermPredictions.length > 0 && (
                     <div>
-                        <Line data={chartData} />
+                        <div className="bg-white p-4">
+                            <Line data={chartData} />
+                        </div>
+                        <div className="mt-4">
+                            {updatedPredictions.map((prediction, index) => (
+                                <div key={index} className="flex items-center gap-4 mb-2">
+                                    <p>{prediction.date}</p>
+                                    <button
+                                        className="bg-blue-500 px-2 py-1 text-white rounded-md"
+                                        onClick={() => updateHoliday(index)}
+                                    >
+                                        Mark as Holiday
+                                    </button>
+                                    <button
+                                        className="bg-green-500 px-2 py-1 text-white rounded-md"
+                                        onClick={() => updateWeather(index, 10)} // Default decrease by 10%
+                                    >
+                                        Improve Weather Condition
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
+
                 {longTermPrediction && (
                     <p>Long-Term Prediction: {longTermPrediction}</p>
+                )}
+
+                {(shortTermPredictions.length > 0 && mappedDate) && (
+                    <p>Short-Term Prediction: {shortTermPredictions[0].price}</p>
                 )}
             </div>
         </div>
