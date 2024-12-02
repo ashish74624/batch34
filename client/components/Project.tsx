@@ -1,6 +1,4 @@
 "use client";
-"use client";
-
 import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import {
@@ -15,7 +13,6 @@ import {
 } from "chart.js";
 import { getCsrfToken } from "./getCsrfToken";
 
-// Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface Prediction {
@@ -24,11 +21,11 @@ interface Prediction {
 }
 
 function Project() {
-    const [date, setDate] = useState<string>(""); // Input date
-    const [shortTermPredictions, setShortTermPredictions] = useState<Prediction[]>([]); // Original predictions
-    const [longTermPrediction, setLongTermPrediction] = useState<string>(""); // Long-term prediction
-    const [loading, setLoading] = useState<boolean>(false); // Loading state
-    const [csrfToken, setCsrfToken] = useState<string>(""); // CSRF token
+    const [date, setDate] = useState<string>("");
+    const [shortTermPredictions, setShortTermPredictions] = useState<Prediction[]>([]);
+    const [longTermPrediction, setLongTermPrediction] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
+    const [csrfToken, setCsrfToken] = useState<string>("");
     const [updatedPredictions, setUpdatedPredictions] = useState<Prediction[]>([]);
     const [mappedDate, setMappedDate] = useState<string | null>()
 
@@ -40,7 +37,7 @@ function Project() {
         fetchToken();
     }, []);
 
-    const handleAction = async (action: "generate_data") => {
+    const handleAction = async (action: "generate_data" | "see_graph") => {
         setLoading(true);
         try {
             const response = await fetch("http://127.0.0.1:8000/api/forecast/", {
@@ -57,7 +54,7 @@ function Project() {
                 const predictions: Prediction[] = data.short_term_predictions || [];
                 setShortTermPredictions(predictions);
                 setLongTermPrediction(data.long_term_prediction || "");
-                setUpdatedPredictions(predictions); // Initialize updated predictions
+                setUpdatedPredictions(predictions);
                 setMappedDate(data.mapped_date);
             }
         } catch (error) {
@@ -69,13 +66,13 @@ function Project() {
 
     const updateHoliday = (index: number) => {
         const updated = [...updatedPredictions];
-        updated[index].price *= 1.2; // Increase price for holiday
+        updated[index].price *= 1.2;
         setUpdatedPredictions(updated);
     };
 
     const updateWeather = (index: number, decreaseBy: number) => {
         const updated = [...updatedPredictions];
-        updated[index].price *= 1 - decreaseBy / 100; // Decrease price by percentage
+        updated[index].price *= 1 - decreaseBy / 100;
         setUpdatedPredictions(updated);
     };
 
@@ -108,7 +105,7 @@ function Project() {
                     className="text-white px-2 w-80 py-1.5 border rounded-md"
                     onClick={() => handleAction("generate_data")}
                 >
-                    Generate Augmented Data
+                    Submit
                 </button>
 
                 {loading && <p>Running scripts... Please wait.</p>}
@@ -130,7 +127,7 @@ function Project() {
                                     </button>
                                     <button
                                         className="bg-green-500 px-2 py-1 text-white rounded-md"
-                                        onClick={() => updateWeather(index, 10)} // Default decrease by 10%
+                                        onClick={() => updateWeather(index, 10)}
                                     >
                                         Improve Weather Condition
                                     </button>
@@ -146,6 +143,10 @@ function Project() {
 
                 {(shortTermPredictions.length > 0 && mappedDate) && (
                     <p>Short-Term Prediction: {shortTermPredictions[0].price}</p>
+                )}
+
+                {shortTermPredictions.length > 0 && longTermPrediction && (
+                    <button className="text-white px-2 w-80 py-1.5 border rounded-md" onClick={() => handleAction("see_graph")}>See Graph</button>
                 )}
             </div>
         </div>
