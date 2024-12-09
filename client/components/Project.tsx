@@ -27,7 +27,14 @@ function Project() {
     const [loading, setLoading] = useState<boolean>(false);
     const [csrfToken, setCsrfToken] = useState<string>("");
     const [updatedPredictions, setUpdatedPredictions] = useState<Prediction[]>([]);
-    const [mappedDate, setMappedDate] = useState<string | null>()
+    const [mappedDate, setMappedDate] = useState<string | null>();
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [modalIndex, setModalIndex] = useState<number | null>(null);
+    const [modalValues, setModalValues] = useState({
+        temperature: 25, // Ideal temperature
+        humidity: 50, // Ideal humidity
+        precipitation: 10, // Ideal precipitation amount
+    });
 
     useEffect(() => {
         const fetchToken = async () => {
@@ -70,10 +77,29 @@ function Project() {
         setUpdatedPredictions(updated);
     };
 
-    const updateWeather = (index: number, decreaseBy: number) => {
-        const updated = [...updatedPredictions];
-        updated[index].price *= 1 - decreaseBy / 100;
-        setUpdatedPredictions(updated);
+    const openModal = (index: number) => {
+        setModalIndex(index);
+        setShowModal(true);
+    };
+
+    const handleModalChange = (field: string, value: number) => {
+        setModalValues((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const submitModal = () => {
+        if (modalIndex !== null) {
+            const updated = [...updatedPredictions];
+            const { temperature, humidity, precipitation } = modalValues;
+
+            // Adjust the price based on new values
+            const adjustmentFactor =
+                1 + (temperature - 25) * 0.01 - (humidity - 50) * 0.005 + (precipitation - 10) * 0.002;
+
+            updated[modalIndex].price *= Math.max(0.5, Math.min(1.5, adjustmentFactor)); // Keep adjustments within a realistic range
+
+            setUpdatedPredictions(updated);
+        }
+        setShowModal(false);
     };
 
     const chartData = {
@@ -127,7 +153,7 @@ function Project() {
                                     </button>
                                     <button
                                         className="bg-green-500 px-2 py-1 text-white rounded-md"
-                                        onClick={() => updateWeather(index, 10)}
+                                        onClick={() => openModal(index)}
                                     >
                                         Improve Weather Condition
                                     </button>
@@ -146,9 +172,72 @@ function Project() {
                 )}
 
                 {shortTermPredictions.length > 0 && longTermPrediction && (
-                    <button className="text-white px-2 w-80 py-1.5 border rounded-md" onClick={() => handleAction("see_graph")}>See Graph</button>
+                    <button
+                        className="text-white px-2 w-80 py-1.5 border rounded-md"
+                        onClick={() => handleAction("see_graph")}
+                    >
+                        See Graph
+                    </button>
                 )}
             </div>
+
+            {/* Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center text-black">
+                    <div className="bg-white p-4 rounded-md w-96">
+                        <h2 className="text-xl font-bold mb-4">Adjust Weather Conditions</h2>
+                        <div className="flex flex-col gap-2">
+                            <label>
+                                Temperature:
+                                <input
+                                    type="number"
+                                    value={modalValues.temperature}
+                                    onChange={(e) =>
+                                        handleModalChange("temperature", parseFloat(e.target.value))
+                                    }
+                                    className="text-black w-full px-2 py-1 rounded-md"
+                                />
+                            </label>
+                            <label>
+                                Humidity:
+                                <input
+                                    type="number"
+                                    value={modalValues.humidity}
+                                    onChange={(e) =>
+                                        handleModalChange("humidity", parseFloat(e.target.value))
+                                    }
+                                    className="text-black w-full px-2 py-1 rounded-md"
+                                />
+                            </label>
+                            <label>
+                                Precipitation Amount:
+                                <input
+                                    type="number"
+                                    value={modalValues.precipitation}
+                                    onChange={(e) =>
+                                        handleModalChange("precipitation", parseFloat(e.target.value))
+                                    }
+                                    className="text-black w-full px-2 py-1 rounded-md"
+                                />
+                            </label>
+                        </div>
+                        <div className="flex justify-end mt-4 gap-2">
+                            <button
+                                className="bg-gray-500 px-4 py-2 text-white rounded-md"
+                                onClick={() => setShowModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="bg-green-500 px-4 py-2 text-white rounded-md"
+                                onClick={submitModal}
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
