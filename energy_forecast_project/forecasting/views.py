@@ -37,13 +37,13 @@ def forecast_view(request):
         # Map the input date to a specified range
         mapped_date = map_date_to_range(date, "2009-05-17", "2010-05-17")
 
-        try:
-            if action == "generate_data":
-                subprocess.run(["python", r"C:\Users\ashis\OneDrive\Desktop\Monthly-Daily-Energy-Forecasting-Docker-API\notebooks\eda-2.py"], check=True)
-            elif action == "see_graph":
-                subprocess.run(["python", r"C:\Users\ashis\OneDrive\Desktop\Monthly-Daily-Energy-Forecasting-Docker-API\notebooks\mm.py"], check=True)
-        except subprocess.CalledProcessError as e:
-            return JsonResponse({"error": f"Error executing script: {e}"}, status=500)
+        # try:
+        #     if action == "generate_data":
+        #         subprocess.run(["python", r"C:\Users\ashis\OneDrive\Desktop\Monthly-Daily-Energy-Forecasting-Docker-API\notebooks\eda-2.py"], check=True)
+        #     elif action == "see_graph":
+        #         subprocess.run(["python", r"C:\Users\ashis\OneDrive\Desktop\Monthly-Daily-Energy-Forecasting-Docker-API\notebooks\mm.py"], check=True)
+        # except subprocess.CalledProcessError as e:
+        #     return JsonResponse({"error": f"Error executing script: {e}"}, status=500)
 
         # Load the data
         data_path = os.path.join(settings.BASE_DIR, "data/processed/weather_and_consumption.csv")
