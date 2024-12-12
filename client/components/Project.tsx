@@ -20,6 +20,25 @@ interface Prediction {
     price: number;
 }
 
+const boxPlot = [
+    {
+        name: "",
+        img: "/d.png"
+    },
+    {
+        name: "",
+        img: "/m.png"
+    },
+    {
+        name: "",
+        img: "/q.png"
+    },
+    {
+        name: "",
+        img: "/y.png"
+    },
+]
+
 function Project() {
     const [date, setDate] = useState<string>("");
     const [shortTermPredictions, setShortTermPredictions] = useState<Prediction[]>([]);
@@ -35,6 +54,7 @@ function Project() {
         humidity: 50, // Ideal humidity
         precipitation: 10, // Ideal precipitation amount
     });
+    const [graph, setGraph] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchToken = async () => {
@@ -42,6 +62,7 @@ function Project() {
             setCsrfToken(token);
         };
         fetchToken();
+        fetchCurrentWeather();
     }, []);
 
     const handleAction = async (action: "generate_data" | "see_graph") => {
@@ -116,6 +137,41 @@ function Project() {
         ],
     };
 
+    const today = new Date().toISOString().split("T")[0];
+
+    const fetchCurrentWeather = async () => {
+        try {
+            const response = await fetch(
+                "http://api.weatherapi.com/v1/current.json?key=e80c903f3a1d42e280b125702233110&q=france&aqi=no"
+            );
+            const data = await response.json();
+            return {
+                temperature: data.current.temp_c,
+                humidity: data.current.humidity,
+                precipitation: data.current.precip_mm,
+            };
+        } catch (error) {
+            console.error("Error fetching weather data:", error);
+            return null;
+        }
+    };
+
+    const handleCurrentWeather = async (index: number) => {
+        const weatherData = await fetchCurrentWeather();
+        if (weatherData) {
+            const updated = [...updatedPredictions];
+            const { temperature, humidity, precipitation } = weatherData;
+
+            // Adjust the price using the fetched weather data
+            const adjustmentFactor =
+                1 + (temperature - 25) * 0.01 - (humidity - 50) * 0.005 + (precipitation - 10) * 0.002;
+            updated[index].price *= Math.max(0.5, Math.min(1.5, adjustmentFactor)); // Keep adjustments realistic
+
+            setUpdatedPredictions(updated);
+        }
+    };
+
+
     return (
         <div id="project" className="w-screen h-screen p-4 z-50 relative mt-40 text-white">
             <h1 className="text-4xl">Energy Forecast</h1>
@@ -136,6 +192,31 @@ function Project() {
 
                 {loading && <p>Running scripts... Please wait.</p>}
 
+                {
+                    shortTermPredictions.length > 0 &&
+                    <>
+                        <div>
+                            <h1>Electric Power Consumption overtime:</h1>
+                            <div className="w-[80vw]  h-max">
+
+                                <img src="/ea.png" alt="Electric Power Consumption overtime" />
+
+                            </div>
+                        </div>
+                        <div>
+                            <h1>Box Plot:</h1>
+                            <div className="w-[80vw] mx-auto grid  grid-cols-2 gap-2 h-max">
+                                {boxPlot.map((item, i) => (
+                                    <div key={i} >
+                                        <p>{item.name}</p>
+                                        <img src={item.img} alt={item.name} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                }
+
                 {shortTermPredictions.length > 0 && (
                     <div>
                         <div className="bg-white p-4">
@@ -151,12 +232,23 @@ function Project() {
                                     >
                                         Mark as Holiday
                                     </button>
-                                    <button
-                                        className="bg-green-500 px-2 py-1 text-white rounded-md"
-                                        onClick={() => openModal(index)}
-                                    >
-                                        Improve Weather Condition
-                                    </button>
+                                    {
+                                        prediction.date === today
+                                            ?
+                                            <button
+                                                className="bg-red-400 px-2 py-1 text-white rounded-md"
+                                                onClick={() => handleCurrentWeather(index)}
+                                            >
+                                                Apply Current Weather Condition
+                                            </button>
+                                            :
+                                            <button
+                                                className="bg-green-500 px-2 py-1 text-white rounded-md"
+                                                onClick={() => openModal(index)}
+                                            >
+                                                Improve Weather Condition
+                                            </button>
+                                    }
                                 </div>
                             ))}
                         </div>
@@ -171,14 +263,19 @@ function Project() {
                     <p>Short-Term Prediction: {shortTermPredictions[0].price}</p>
                 )}
 
-                {shortTermPredictions.length > 0 && longTermPrediction && (
-                    <button
-                        className="text-white px-2 w-80 py-1.5 border rounded-md"
-                        onClick={() => handleAction("see_graph")}
-                    >
-                        See Graph
-                    </button>
-                )}
+                {
+                    shortTermPredictions.length > 0 &&
+                    <>
+                        <div>
+                            <h1>7-Fold time series split on Test data</h1>
+                            <div className="w-[80vw]  h-max">
+
+                                <img src="/7f.png" alt="7-Fold" />
+
+                            </div>
+                        </div>
+                    </>
+                }
             </div>
 
             {/* Modal */}
@@ -230,7 +327,7 @@ function Project() {
                             </button>
                             <button
                                 className="bg-green-500 px-4 py-2 text-white rounded-md"
-                                onClick={submitModal}
+                                onClick={() => submitModal()}
                             >
                                 Submit
                             </button>
